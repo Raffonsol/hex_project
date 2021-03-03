@@ -33,6 +33,23 @@ public class GameMenu : MonoBehaviour
     
     }
 
+    // Update is called once per frame
+    public void AllowSteps(int steps)
+    {
+        if (steps > 1)  stepButtn.enabled = true;
+        else stepButtn.enabled = false;
+
+        if (steps > 2)  stepButtn2.enabled = true;
+        else stepButtn2.enabled = false;
+
+        if (steps > 5)  stepButtn5.enabled = true;
+        else stepButtn5.enabled = false;
+
+        if (steps > 10)  stepButtn10.enabled = true;
+        else stepButtn10.enabled = false;
+        
+    }
+
     public void showHide(bool showHide) {
         showCover.SetActive(showHide);
     }

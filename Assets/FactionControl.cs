@@ -27,7 +27,7 @@ public class FactionControl : MonoBehaviour
     public static FactionControl Instance {
         get {
             if (_instance == null) {
-                Debug.LogError("You have not instantiated the GameConstants in the scene, but you are trying to access it");
+                Debug.LogError("You have not instantiated the FactionControl in the scene, but you are trying to access it");
                 return null;
             }
             return _instance;
@@ -46,6 +46,8 @@ public class FactionControl : MonoBehaviour
     private int turn;
     private int players;
 
+    private bool movementHappening = false;
+
     // all below are parallel with factions
     private static int[] playerTurns; // counts number of turns
     private static List<int>[] playerChars; // array of character list
@@ -56,8 +58,8 @@ public class FactionControl : MonoBehaviour
     void Start()
     {
         // start at whatever game control says we should start
-        int turn = GameControl.Instance.startingPlayer;
-        int players = factions.Count;
+        FactionControl.Instance.turn = GameControl.Instance.startingPlayer;
+        FactionControl.Instance.players = factions.Count;
 
         GameControl.Instance.Initialize(players - 1);
 
@@ -81,7 +83,7 @@ public class FactionControl : MonoBehaviour
             }
         }
 
-        startPlayerTurn(turn);        
+        startPlayerTurn(turn);    
         
     }
 
@@ -89,6 +91,14 @@ public class FactionControl : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void UpdateStepButtons()
+    {
+        List<int> units = playerChars[turn];
+        
+        int totalStepsPlotted = getStepButtons(units);    
+        GameControl.Instance.gameMenu.AllowSteps(totalStepsPlotted);
     }
 
     public void EndTurn() {
@@ -101,13 +111,13 @@ public class FactionControl : MonoBehaviour
     public void Step(int moves) {
         turn = GameControl.Instance.startingPlayer;
         
-        
         List<int> units = playerChars[turn];
         
         for(int i = 0; i < units.Count; i++){
             coroutine = TimeStep("unit"+units[i], moves);
             StartCoroutine(coroutine);
             // TimeStep("unit"+units[i], moves);
+            UpdateStepButtons();
         }
     }
 
@@ -116,17 +126,35 @@ public class FactionControl : MonoBehaviour
         unit.speed = 1 + .2f*repeats;
        for(int j = 0; j < repeats; j++){ // for every move to be made
             if (unit.plottedTilePath != null && unit.plottedTilePath.Length >= 1) {
+                movementHappening = true;
                 unit.Move();
                 
                 yield return new WaitForSeconds(.3f);
             }
+            movementHappening = false;
         }
+        UpdateStepButtons();
+    }
+
+    /* return the shortest amount of plottedsteps from given list of unit ids */
+    private int getStepButtons(List<int> units) {
+        if (units == null || units.Count <= 0 || movementHappening) return 0;
+        int shortestLength = -1;
+        for(int i = 0; i < units.Count; i++){
+            Chararcter unit = GameObject.Find("unit"+units[i]).GetComponent<Chararcter>();
+            if (unit.plottedTilePath == null || unit.plottedTilePath.Length < 1) {
+                return 0;
+            } else if (shortestLength == -1 || unit.plottedTilePath.Length < shortestLength) {
+                shortestLength = unit.plottedTilePath.Length;
+            }
+        }
+        return shortestLength;
     }
 
     private void AddChararcter(int ownerIndex, Chararcter recruit) {
         // list part
         if (playerChars[ownerIndex] == null) playerChars[ownerIndex] = new List<int>();
-        playerChars[ownerIndex].Add(recruit.id);
+        playerChars[ownerIndex].Add(recruit.id);        
     }
 
     /**
@@ -145,9 +173,9 @@ public class FactionControl : MonoBehaviour
         // if they have a leader, move camera to em
         if (factions[player].leader != null) {
             Camera.main.transform.position = new Vector3(factions[player].leader.transform.position.x, factions[player].leader.transform.position.y, -10f) ;
-            Debug.Log(factions[player].leader.transform.position);
             
         }
         // drumroll... UI stuff! <= TODO 
+        UpdateStepButtons();
     }
 }

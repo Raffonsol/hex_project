@@ -57,7 +57,7 @@ public class GameControl : MonoBehaviour
     public static GameControl Instance {
         get {
             if (_instance == null) {
-                Debug.LogError("You have not instantiated the GameConstants in the scene, but you are trying to access it");
+                Debug.LogError("You have not instantiated the GameControl in the scene, but you are trying to access it");
                 return null;
             }
             return _instance;
@@ -122,7 +122,6 @@ public class GameControl : MonoBehaviour
 
     public int Pass() {
         startingPlayer = startingPlayer == controllers ?  0 : startingPlayer + 1;
-        Debug.Log("Player " + (startingPlayer) + " turn");
         
         // find all characters belonging to turn-just-passed owner and reset their actions
 
@@ -278,6 +277,8 @@ public class GameControl : MonoBehaviour
                 DrawPath(selected.plottedTilePath);
                 setSelection(selected);
             }
+            // change the buttons based on who is plotted and isnt after this
+            FactionControl.Instance.UpdateStepButtons();
     }
 
     private IPath Pathfind(GameTile target) {        
@@ -315,10 +316,7 @@ public class GameControl : MonoBehaviour
             // prevent crash
             runs++;
             if (runs>1000){
-                for(int i = 0; i <nextStep.Count; i++){ 
-                        Debug.Log(nextStep[i].self.x + " | " + nextStep[i].self.y);
-            
-                 }  Debug.Log("Crashed on first calculation");  
+                 Debug.Log("Crashed on first calculation");  
                 return null;} // TODO: Change this to error
 
             // if char is adjacent then it's next to us
