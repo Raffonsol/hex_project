@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using System.Linq;
 using System;
 
 public static class HexMetrics {
@@ -26,6 +27,7 @@ public class ITileProperties {
     public string name;
     public int stepCost;
     public Color color;
+    public GameObject[] defaultImages;
 }
 
 public class IPath {
@@ -161,7 +163,6 @@ public class GameControl : MonoBehaviour
                 } else {
                     // not-owned unit selected
                 }
-                Debug.Log("selected " + selected.name);
                 selected.steppingOn = lastTileClicked;
                 selectionMenu.showHide(true);
                 selectionMenu.name.text = selected.name + " Lvl: " + selected.level;
@@ -284,8 +285,10 @@ public class GameControl : MonoBehaviour
         // determine starting point (will be endpoint here)
         GameTile charTile;
         if (isPlotValid(selected.plottedTilePath) ) {
-            charTile = selected.plottedTilePath[0];
-            Debug.Log("Plotting from last point in last plotted " + selected.plottedTilePath.Length);
+            charTile = selected.plottedTilePath[0];//Plotting from last point in last plotted 
+            List<GameTile> list = selected.plottedTilePath.ToList();
+            list.RemoveAt(0);
+            selected.plottedTilePath = list.ToArray();
         } else {
             selected.plottedTilePath = null; // this is just tod eal with some weird caching that keeps the path from last test
             charTile = selected.steppingOn;
@@ -405,7 +408,6 @@ public class GameControl : MonoBehaviour
             xDiff = charTile.self.x - currentTile.self.x;
             yDiff = charTile.self.y - currentTile.self.y;
             nextStep.Add(currentTile);
-
             
             // more steps added for the count
             countSteps+= getStepCountFromGroundNature(currentTile.groundNature);
@@ -429,6 +431,9 @@ public class GameControl : MonoBehaviour
                         // then we can get rid of every tile between i and j cause it fat
                         cutStart = i+1; cutEnd = j;
                         thereWereChanges = true; // told you not to worry ;)
+                    } else if(nextStep[j].id == nextStep[i].id) { // or if they are the same TODO: Look into this
+                        cutStart = i; cutEnd = j;
+                        thereWereChanges = true;
                     }
                 }
             }

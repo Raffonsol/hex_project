@@ -50,6 +50,8 @@ public class FactionControl : MonoBehaviour
     private static int[] playerTurns; // counts number of turns
     private static List<int>[] playerChars; // array of character list
 
+    private IEnumerator coroutine;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -103,13 +105,22 @@ public class FactionControl : MonoBehaviour
         List<int> units = playerChars[turn];
         
         for(int i = 0; i < units.Count; i++){
-            Chararcter unit = GameObject.Find("unit"+units[i]).GetComponent<Chararcter>();
-            
-            if (unit.plottedTilePath != null && unit.plottedTilePath.Length >= moves) {
+            coroutine = TimeStep("unit"+units[i], moves);
+            StartCoroutine(coroutine);
+            // TimeStep("unit"+units[i], moves);
+        }
+    }
+
+    IEnumerator TimeStep(string unitName, int repeats) {
+        Chararcter unit = GameObject.Find(unitName).GetComponent<Chararcter>();
+        unit.speed = 1 + .2f*repeats;
+       for(int j = 0; j < repeats; j++){ // for every move to be made
+            if (unit.plottedTilePath != null && unit.plottedTilePath.Length >= 1) {
                 unit.Move();
+                
+                yield return new WaitForSeconds(.3f);
             }
         }
-        
     }
 
     private void AddChararcter(int ownerIndex, Chararcter recruit) {

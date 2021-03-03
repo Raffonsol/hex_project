@@ -28,10 +28,12 @@ public class Chararcter : MonoBehaviour
     public GameTile[] plottedTilePath;
     [HideInInspector]
     public int plottedSteps;
+    [HideInInspector]
+    public float speed = 1.3f;
 
     private bool moving = false;
     private Vector2 targetPosition;
-    private float speed = 1.3f;
+    
     
 
     // Start is called before the first frame update
@@ -56,6 +58,7 @@ public class Chararcter : MonoBehaviour
             transform.position = Vector2.MoveTowards(transform.position, targetPosition, 5f);
             moving = false;
             GetComponent<Animator>().SetInteger("moveAnimation", 0);
+            speed = 1;
         }
     }
     public int getMaxLife() {
@@ -63,11 +66,14 @@ public class Chararcter : MonoBehaviour
     }
 
     // just move to next tile on the plot. Mostly politics and animation
-    public void Move() {
+    public void Move(int speedUp = 1) {
         if (plottedTilePath == null || plottedTilePath.Length == 0)Debug.LogError("A movement was attempted without a plotted path");
         // start aniamtion showing little movement
         GetComponent<Animator>().SetInteger("moveAnimation", 1);
-        
+        speed = speedUp;
+for(int i = 0; i <plottedTilePath.Length; i++){Debug.Log(plottedTilePath[i].self.x + " - "+plottedTilePath[i].self.y);
+
+}
 
         steppingOn.occupier = -1; // TODO: if that becomes array, just remove this guy
         // remove next step
@@ -82,5 +88,7 @@ public class Chararcter : MonoBehaviour
         // this makes it move
         targetPosition = steppingOn.transform.position;
         moving = true;
+        Debug.Log("target now "+ targetPosition);
+        
     }
 }

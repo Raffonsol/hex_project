@@ -128,11 +128,25 @@ public class HexGrid : MonoBehaviour {
 	}
 
 	public void Terraform(int tileId, GroundNature transformTarget) {
+		if (cells[tileId].mapped) return; else cells[tileId].mapped = true;
+
 		cells[tileId].groundNature = transformTarget;
 		int elev = rnd.Next(-1, 2);
 		cells[tileId].elevation = elev;
 		cells[tileId].groundType = GroundType.Walkable;
 		cells[tileId].transform.GetComponent<SpriteRenderer>().color = GameControl.Instance.getTileColor(cells[tileId]);
+
+		// Remove all child objects
+ 		foreach (Transform child in cells[tileId].transform)
+     		Destroy(child.gameObject);
+		// add overlay images to make them look pretty
+		GameObject[] items = GameControl.Instance.getTilePropertyFromName(transformTarget.ToString()).defaultImages;
+		if (items.Length > 0 ) {
+			int selectedImage = rnd.Next(0, items.Length);
+			GameObject img = Instantiate<GameObject>(items[selectedImage]);
+			img.transform.SetParent(cells[tileId].transform, false);
+		}
+		
 	}
 
     void Awake () {

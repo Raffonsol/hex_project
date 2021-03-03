@@ -56,6 +56,9 @@ public class GameTile : MonoBehaviour
     [HideInInspector]
     public ICoordenate southEast;
 
+    [HideInInspector]
+    public bool mapped;
+
     // Start is called before the first frame update
     void Start()
     {
