@@ -152,9 +152,9 @@ public class FactionControl : MonoBehaviour
     }
 
     private void AddChararcter(int ownerIndex, Chararcter recruit) {
-        // list part
+        // adding to the list of existing characters
         if (playerChars[ownerIndex] == null) playerChars[ownerIndex] = new List<int>();
-        playerChars[ownerIndex].Add(recruit.id);        
+        playerChars[ownerIndex].Add(recruit.id);       
     }
 
     /**

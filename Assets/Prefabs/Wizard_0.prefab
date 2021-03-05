@@ -122,7 +122,42 @@ MonoBehaviour:
   startingMaxLife: 15
   upgradeMaxLife: 3
   charClass: 1
+  skills:
+  - id: 0
+    acquiredAtLvl: 0
+    name: Arcane Bolt
+    icon: {fileID: -5959617307868019196, guid: cd025fb8a73688143a4afa469a630ba9, type: 3}
+    targetType: 1
+    effectTypeOnEnemies: 1
+    effectTypeOnFriends: 0
+    factionsAllowed: 1
+    specialEffectType: 0
+    actionCost: 1
+    actionCostPerLevel: 0
+    range: 2
+    rangePerLevel: 0.2
+    dice: 2
+    dicePerLevel: 0.5
+  - id: 0
+    acquiredAtLvl: 2
+    name: Blink
+    icon: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+    targetType: 4
+    effectTypeOnEnemies: 0
+    effectTypeOnFriends: 0
+    factionsAllowed: 3
+    specialEffectType: 1
+    actionCost: 2
+    actionCostPerLevel: 0
+    range: 3
+    rangePerLevel: 0.5
+    dice: 0
+    dicePerLevel: 0
   level: 0
   steppingOn: {fileID: 0}
+  id: 0
   actionsLeft: 0
   lifePoints: 0
+  plottedTilePath: []
+  plottedSteps: 0
+  speed: 1.3
