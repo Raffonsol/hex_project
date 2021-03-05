@@ -1,6 +1,63 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+
+public enum SkillTargetType {
+    Self,
+    Forward,
+    Around,
+    Backward,
+    Throw
+}
+public enum SkillFactionsAllowed {
+    Friendly,
+    Hostile,
+    Both,
+    Neither,
+}
+public enum SkillEffectType {
+    None,
+    Damage,
+    Heal,
+    Build,
+    Conjure,
+    Buff,
+    Debuff,
+}
+public enum SkillSpecialEffectType {
+    None,
+    RelocateSelf,
+    PushHit,
+    PullClose,
+}
+
+[Serializable]
+public class ISkill {
+    
+    [HideInInspector]
+    public int id; // generated
+    public int acquiredAtLvl;
+    public string name;
+    
+    public Sprite icon;
+    public SkillTargetType targetType;
+    public SkillEffectType effectTypeOnEnemies;
+    public SkillEffectType effectTypeOnFriends;
+    public SkillFactionsAllowed factionsAllowed;
+    public SkillSpecialEffectType specialEffectType;
+    // TODO: maybe add a lil something for particle effect
+
+    public int actionCost;
+    public int actionCostPerLevel;
+    public float range;
+    public float rangePerLevel;
+    public float dice;
+    public float dicePerLevel;
+
+    // TODO: Make interface for terrain change effects. To include prefab for overlay and terrainNature/type 
+    
+}
 
 public class Chararcter : MonoBehaviour
 {
@@ -14,6 +71,9 @@ public class Chararcter : MonoBehaviour
     public int upgradeMaxLife; // how many points it increases per level
 
     public CharClass charClass = CharClass.Pawn;
+
+    [SerializeField]
+    public List<ISkill> skills;
 
     public int level = 0;
     public GameTile steppingOn;
@@ -71,9 +131,6 @@ public class Chararcter : MonoBehaviour
         // start aniamtion showing little movement
         GetComponent<Animator>().SetInteger("moveAnimation", 1);
         speed = speedUp;
-for(int i = 0; i <plottedTilePath.Length; i++){Debug.Log(plottedTilePath[i].self.x + " - "+plottedTilePath[i].self.y);
-
-}
 
         steppingOn.occupier = -1; // TODO: if that becomes array, just remove this guy
         // remove next step
@@ -88,7 +145,6 @@ for(int i = 0; i <plottedTilePath.Length; i++){Debug.Log(plottedTilePath[i].self
         // this makes it move
         targetPosition = steppingOn.transform.position;
         moving = true;
-        Debug.Log("target now "+ targetPosition);
         
     }
 }
