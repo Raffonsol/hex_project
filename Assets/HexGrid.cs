@@ -13,6 +13,7 @@ public class IGrowth {
 	public int skipChance;
 }
 
+
 public class HexGrid : MonoBehaviour {
 
 	public int height = 6;
@@ -21,7 +22,7 @@ public class HexGrid : MonoBehaviour {
 	public GameTile cellPrefab;
 
 	[SerializeField]
-		public List<IGrowth> growths;
+	public List<IGrowth> growths;
 
     GameTile[] cells;
 	// yes this is an arra of lists

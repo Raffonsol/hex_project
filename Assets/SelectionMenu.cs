@@ -13,16 +13,24 @@ public class SelectionMenu : MonoBehaviour
     public Text stepsPlanned;
     public Button resetBttn;
 
-    // Start is called before the first frame update
-    void Start()
-    {
+    public UISkillContent skillContent;
 
+    public void ShowSelection(Chararcter selected) {
+        showHide(true);
+        name.text = selected.name + " Lvl: " + selected.level;
+        steps.text = selected.actionsLeft.ToString();
+        stepsPlanned.text = "Planned for " +selected.plottedSteps.ToString()+ (selected.plottedSteps > 1 ? " steps" : " step");
+        healthBar.value = selected.lifePoints / selected.getMaxLife();
+        resetBttn.onClick.AddListener(() => 
+        {
+            Chararcter select = GameObject.Find("unit"+selected.id).GetComponent<Chararcter>();
+            select.plottedTilePath = null; select.plottedSteps = 0; GameControl.Instance.ClearLastPath();
+        });
+        skillContent.ShowSkills(selected.skills.ToArray());
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-    
+    public void HideSkills() {
+        skillContent.HideSkills();
     }
 
     public void showHide(bool showHide) {

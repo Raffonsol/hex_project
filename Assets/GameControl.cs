@@ -146,8 +146,9 @@ public class GameControl : MonoBehaviour
                 Chararcter unit = GameObject.Find("unit"+lastTileClicked.occupier).GetComponent<Chararcter>();
                 setSelection(unit);
             } else {
-                ClearLastPath();
+                ChillLastPath();
                 selected = null;
+                selectionMenu.HideSkills();
                 selectionMenu.showHide(false);
             }
         }
@@ -155,21 +156,24 @@ public class GameControl : MonoBehaviour
 
     public void setSelection(Chararcter select) {
         selected = select;
+
                 if (selected.owner == startingPlayer) {
                     // owned unit selected
                     if (isPlotValid(selected.plottedTilePath)) DrawPath(selected.plottedTilePath);
                     selected.steppingOn.transform.GetComponent<SpriteRenderer>().color = Color.blue;
                 } else {
                     // not-owned unit selected
+                    selectionMenu.HideSkills(); // cant see their skills?
                 }
                 selected.steppingOn = lastTileClicked;
-                selectionMenu.showHide(true);
-                selectionMenu.name.text = selected.name + " Lvl: " + selected.level;
-                selectionMenu.steps.text = selected.actionsLeft.ToString();
-                selectionMenu.stepsPlanned.text = "Planned for " +selected.plottedSteps.ToString()+ (selected.plottedSteps > 1 ? " steps" : " step");
-                selectionMenu.healthBar.value = selected.lifePoints / selected.getMaxLife();
-                selectionMenu.resetBttn.onClick.AddListener(() => 
-                {selected.plottedTilePath = null; selected.plottedSteps = 0; ClearLastPath();});
+                selectionMenu.ShowSelection(selected);
+                
+
+    }
+
+    // Show skill confirmation with in map projection.
+    public void ProjectSkill(int skillIndex) {
+        ISkill skill = selected.skills[skillIndex];
     }
 
     public ITileProperties getTilePropertyFromName(string name) {
@@ -198,6 +202,10 @@ public class GameControl : MonoBehaviour
         tile.GetComponent<SpriteRenderer>().color =
                 getTileColor(tile);
     }
+    private void chillOutTileColor(GameTile tile) {
+        tile.GetComponent<SpriteRenderer>().color =
+                 Color.Lerp(Color.green, Color.yellow, 0.5f);
+    }
     private void performFriendlyUnitSelect() {
         // show menu with full knowledge
     }
@@ -209,9 +217,10 @@ public class GameControl : MonoBehaviour
         return getTilePropertyFromName(nature.ToString()).stepCost + changingElev;
     }
 
+    // action means a right click with someone selected
     void Action() {        
         if (!canAction()) 
-        return;
+        return; // this check makes sure there's someone selected that can make
 
          Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector2 mousePos2D = new Vector2(mousePos.x, mousePos.y);
@@ -250,16 +259,53 @@ public class GameControl : MonoBehaviour
         }
         
     }
+    // instead of reseting, this turns them all into a faded out color 
+    // (plotted but not belonging to selected)
+    public void ChillLastPath() {
+        if (lastDrawnPlot == null) 
+            return;
+        
+        for(int i = 0; i <lastDrawnPlot.Length; i++){
+            chillOutTileColor(lastDrawnPlot[i]);
+        }
+        
+    }
 
     public void performAction(GameTile actioned) {
+    
          // if they clicked on themselves let's reset their plot
             if (actioned.id == selected.steppingOn.id) {
                 selected.plottedTilePath = null;
                 selected.plottedSteps = 0;
                 ClearLastPath();
                 setSelection(selected);
-                // TODO: If they clicked somewhere on their plot, reset plot to that point
-            } else { // otherwise lets pathfind and suggest a plot
+                lastDrawnPlot = null; // this needs to be done so that it won't get chilled when user selects away
+                
+            } 
+            else { 
+                // if they clicked somewhere in their path, reset to that point
+                int pos = -1;
+                if (selected.plottedTilePath != null && selected.plottedTilePath.Length > 0) {
+                pos = Array.FindIndex(selected.plottedTilePath, 
+                tile => 
+                actioned 
+                == tile );
+                }
+                if (pos > -1) { // pos is where we are in the selected path
+                
+                
+                    List<GameTile> newPlottedPath = new List<GameTile>();
+                    for(int i = 0; i < selected.plottedTilePath.Length; i++){
+                        if (i >= pos )
+                        newPlottedPath.Add(selected.plottedTilePath[i]);
+                        else resetTileColor(selected.plottedTilePath[i]);
+                    }
+                    selected.plottedTilePath = newPlottedPath.ToArray();
+                    lastDrawnPlot = newPlottedPath.ToArray();
+                }
+                else {
+                
+                // otherwise lets pathfind and suggest a plot
                 IPath pathObj = Pathfind(actioned);
                 GameTile[] found = pathObj.path.ToArray();
 
@@ -276,6 +322,8 @@ public class GameControl : MonoBehaviour
                 selected.plottedSteps += pathObj.stepCost;
                 DrawPath(selected.plottedTilePath);
                 setSelection(selected);
+                }
+
             }
             // change the buttons based on who is plotted and isnt after this
             FactionControl.Instance.UpdateStepButtons();
