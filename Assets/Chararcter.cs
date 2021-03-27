@@ -93,7 +93,7 @@ public class Chararcter : MonoBehaviour
 
     private bool moving = false;
     private Vector2 targetPosition;
-    
+    private int lastDir = 2; // to determine default direction
     
 
     // Start is called before the first frame update
@@ -128,19 +128,26 @@ public class Chararcter : MonoBehaviour
     // just move to next tile on the plot. Mostly politics and animation
     public void Move(int speedUp = 1) {
         if (plottedTilePath == null || plottedTilePath.Length == 0)Debug.LogError("A movement was attempted without a plotted path");
-        // start aniamtion showing little movement
-        GetComponent<Animator>().SetInteger("moveAnimation", 1);
-        speed = speedUp;
-
+       
         steppingOn.occupier = -1; // TODO: if that becomes array, just remove this guy
         // remove next step
+        
         List<GameTile> list = new List<GameTile>(plottedTilePath);
+        int dir;
+        if (steppingOn.self.x > list[list.Count-2].self.x) dir = 1; else dir = 2;
+        if (dir != lastDir) transform.Rotate(0, 180, 0); 
+        lastDir = dir;
+
         list.RemoveAt(list.Count-1);
         GameControl.Instance.ClearLastPath();
         plottedTilePath = list.ToArray();
         steppingOn = plottedTilePath[list.Count-1];
         steppingOn.occupier = id; // TODO: same as above
         if (plottedTilePath.Length == 1) {plottedTilePath = null;}
+
+         // start  showing little movement anim
+        GetComponent<Animator>().SetInteger("moveAnimation", lastDir);
+        speed = speedUp;
 
         // this makes it move
         targetPosition = steppingOn.transform.position;
