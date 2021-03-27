@@ -14,7 +14,15 @@ public enum GroundNature{
     Grass,
     Tree,
     Rock,
+
+    // village stuff
     Road,
+    Wall,
+    WallCracked,
+    Window,
+    Door,
+    Roof,
+    Chimney,
 }
 
 public class ICoordenate {
